@@ -1,0 +1,67 @@
+# ============================================
+# Producción — Zona Aquática
+# Uso:  docker compose -f docker-compose.prod.yml up -d --build
+# Requiere un archivo .env con valores REALES (ver .env.prod.ejemplo)
+# ============================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: piscina_db_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: piscina_backend_prod
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      SEED_ADMIN_USERNAME: ${SEED_ADMIN_USERNAME}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD}
+      CORS_ORIGINS: https://${DOMAIN}
+    command: gunicorn -w 3 -b 0.0.0.0:5000 --timeout 120 run:app
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: piscina_web_prod
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+    name: piscina_prod_db
+  uploads_data:
+    name: piscina_prod_uploads
+  caddy_data:
+  caddy_config:

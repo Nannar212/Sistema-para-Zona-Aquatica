@@ -1,0 +1,65 @@
+services:
+  # ─── BASE DE DATOS ───────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: piscina_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-piscina_db}
+      POSTGRES_USER: ${POSTGRES_USER:-piscina_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-piscina_pass_cambiar}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-piscina_admin} -d ${POSTGRES_DB:-piscina_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── BACKEND (Flask) ─────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: piscina_backend
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: ${FLASK_ENV:-development}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-piscina_admin}:${POSTGRES_PASSWORD:-piscina_pass_cambiar}@db:5432/${POSTGRES_DB:-piscina_db}
+      SECRET_KEY: ${SECRET_KEY:-cambiar_secret_key_en_produccion}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-cambiar_jwt_secret_en_produccion}
+      SEED_ADMIN_USERNAME: ${SEED_ADMIN_USERNAME:-admin}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-Admin123!}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+
+  # ─── FRONTEND (React + Vite) ─────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: piscina_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: /api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+    name: piscina_postgres_data

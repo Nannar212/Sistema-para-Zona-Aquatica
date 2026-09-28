@@ -1,0 +1,24 @@
+# Caddy — servidor web y HTTPS automático para Zona Aquática.
+# Reemplaza {$DOMAIN} por tu dominio real (se pasa por variable de entorno).
+# Caddy obtiene y renueva el certificado SSL solo (Let's Encrypt).
+
+{$DOMAIN} {
+	encode gzip
+
+	# API del backend Flask
+	handle /api/* {
+		reverse_proxy backend:5000
+	}
+
+	# Imágenes subidas (logo, galería, etc.)
+	handle /uploads/* {
+		reverse_proxy backend:5000
+	}
+
+	# Página web (React ya compilado) — SPA con fallback a index.html
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
