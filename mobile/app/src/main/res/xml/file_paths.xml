@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Carpeta de la que FileProvider puede servir URIs: solo los recibos PDF
+     que la app descarga a su propia caché. -->
+<paths>
+    <cache-path name="recibos" path="recibos/" />
+</paths>

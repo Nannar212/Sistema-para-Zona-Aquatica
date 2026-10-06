@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  El backend Flask corre en Docker sobre HTTP plano en la red local,
+  por eso se permite trafico en claro. Si algun dia lo pones detras de
+  HTTPS (Caddy), cambia cleartextTrafficPermitted a false.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

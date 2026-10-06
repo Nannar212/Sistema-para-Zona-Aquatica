@@ -24,3 +24,6 @@ backend/uploads/*
 
 # Respaldos de base de datos
 backups/
+
+# indice local de memsearch (no se versiona)
+.memsearch/

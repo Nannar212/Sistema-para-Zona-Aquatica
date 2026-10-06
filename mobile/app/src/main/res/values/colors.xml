@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta Zona Aquática (igual que tailwind.config.js del frontend web) -->
+    <color name="aqua_50">#e6f1fb</color>
+    <color name="aqua_500">#185fa5</color>
+    <color name="aqua_600">#0c447c</color>
+    <color name="aqua_700">#093763</color>
+    <color name="ic_launcher_background">#0c447c</color>
+</resources>
