@@ -33,7 +33,7 @@ export default function Carrusel({ imagenes = [], intervalo = 4500 }) {
 
   return (
     <div
-      className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-slate-200 shadow-sm"
+      className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-agua"
       onMouseEnter={() => setPausado(true)}
       onMouseLeave={() => setPausado(false)}
       onTouchStart={onTouchStart}
@@ -45,10 +45,10 @@ export default function Carrusel({ imagenes = [], intervalo = 4500 }) {
       >
         {fotos.map((url, idx) => (
           <div key={idx} className="w-full flex-shrink-0">
-            <div className="aspect-[16/10] w-full bg-aqua-100 sm:aspect-[16/9]">
+            <div className="aspect-[16/10] w-full bg-accent sm:aspect-[16/9]">
               {url
                 ? <img src={url} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
-                : <div className="flex h-full items-center justify-center text-aqua-400"><ImageIcon size={30} /></div>}
+                : <div className="flex h-full items-center justify-center text-primary/40"><ImageIcon size={30} /></div>}
             </div>
           </div>
         ))}
@@ -57,17 +57,17 @@ export default function Carrusel({ imagenes = [], intervalo = 4500 }) {
       {total > 1 && (
         <>
           <button onClick={anterior} aria-label="Anterior"
-            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 text-aqua-700 shadow hover:bg-white">
+            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-card/90 p-2.5 text-primary shadow-agua-md backdrop-blur-sm transition-all duration-300 ease-agua hover:scale-105 hover:bg-card">
             <ChevronLeft size={20} />
           </button>
           <button onClick={siguiente} aria-label="Siguiente"
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 text-aqua-700 shadow hover:bg-white">
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-card/90 p-2.5 text-primary shadow-agua-md backdrop-blur-sm transition-all duration-300 ease-agua hover:scale-105 hover:bg-card">
             <ChevronRight size={20} />
           </button>
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2">
             {fotos.map((_, idx) => (
               <button key={idx} onClick={() => setI(idx)} aria-label={`Ir a la foto ${idx + 1}`}
-                className={`h-2.5 rounded-full transition-all ${idx === i ? 'w-6 bg-white' : 'w-2.5 bg-white/60 hover:bg-white/80'}`} />
+                className={`h-2.5 rounded-full transition-all duration-300 ease-agua ${idx === i ? 'w-7 bg-brillo' : 'w-2.5 bg-white/70 hover:bg-white'}`} />
             ))}
           </div>
         </>

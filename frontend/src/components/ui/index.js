@@ -6,3 +6,9 @@ export { default as StatsCard } from './StatsCard'
 export { default as SearchBar } from './SearchBar'
 export { default as EmptyState } from './EmptyState'
 export { default as DataTable } from './DataTable'
+
+// Primitivos del sistema de diseño (API al estilo shadcn/ui)
+export { default as Button, VARIANTES_BOTON, TAMANOS_BOTON } from './Button'
+export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card'
+export { Input, Textarea, Select, Label, Checkbox, Field } from './Campos'
+export { Seccion, TituloSeccion, OlaDivisor, OlasAnimadas } from './Seccion'

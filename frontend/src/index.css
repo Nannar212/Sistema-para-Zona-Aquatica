@@ -2,54 +2,160 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════
+   Zona Aquática — sistema de diseño
+   Tokens al estilo shadcn/ui: cada color se declara una sola vez aquí
+   como terna HSL (sin `hsl()`, para que Tailwind pueda aplicarle
+   opacidad: bg-primary/10). Retonar la app = cambiar este bloque.
+   ═══════════════════════════════════════════════════════════════════ */
+
 :root {
   color-scheme: light;
+
+  /* Lienzo: azul-gris muy sutil, nunca gris sucio */
+  --background: 200 50% 98%;        /* #f7fbfc */
+  --foreground: 209 73% 15%;        /* #0a2742  azul marino — 15.2:1 sobre blanco */
+
+  /* Tarjetas: blanco puro */
+  --card: 0 0% 100%;
+  --card-foreground: 209 73% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 209 73% 15%;
+
+  /* Acción principal: turquesa profundo, legible con texto blanco (4.70:1) */
+  --primary: 192 90% 32%;           /* #087e9b */
+  --primary-foreground: 0 0% 100%;
+  --primary-hover: 193 88% 27%;
+
+  /* Cian brillante: hero, anillos de foco, destellos.
+     Lleva SIEMPRE texto marino encima (6.27:1), nunca blanco. */
+  --brillo: 189 94% 43%;            /* #07b6d5 */
+  --brillo-foreground: 209 73% 15%;
+  --brillo-hover: 189 94% 48%;
+
+  /* Superficies secundarias y silencios */
+  --secondary: 200 42% 94%;
+  --secondary-foreground: 209 60% 22%;
+  --muted: 203 38% 96%;
+  --muted-foreground: 206 22% 46%;  /* #5b798f — 4.59:1 sobre blanco */
+  --accent: 188 85% 94%;            /* hover muy pálido, aire de agua */
+  --accent-foreground: 193 85% 24%;
+
+  /* Estados */
+  --destructive: 0 72% 51%;         /* #dc2626 — 4.83:1 con blanco */
+  --destructive-foreground: 0 0% 100%;
+  --success: 160 84% 30%;
+  --success-foreground: 0 0% 100%;
+  --warning: 32 88% 40%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Trazos */
+  --border: 203 30% 89%;            /* #dbe7ee */
+  --input: 203 28% 85%;
+  --ring: 189 94% 43%;
+
+  /* Tinte de las sombras: azul marino, no negro */
+  --sombra: 209 73% 25%;
+
+  /* Esquinas: rounded-lg = 0.75rem, xl = 1rem, 2xl = 1.5rem */
+  --radius: 0.75rem;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Las secciones de la landing se anclan con #hash; deja aire bajo el navbar */
+  scroll-padding-top: 5rem;
 }
 
 body {
   margin: 0;
   font-family: 'Poppins', system-ui, -apple-system, sans-serif;
-  background-color: #f1f5f9;
-  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
+/* Títulos un poco más apretados: se leen como un bloque, no como letras sueltas */
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+}
+
+/* Selección y barra de scroll en tono agua */
+::selection {
+  background-color: hsl(var(--brillo) / 0.3);
+  color: hsl(var(--foreground));
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--muted));
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
+
 @layer components {
+  /* ─── Clases heredadas ───
+     Las 11 pantallas del panel usan .btn-primary, .card, .input… Se
+     mantienen con la misma API pero ya apuntando a los tokens nuevos,
+     así el panel se retona solo y se puede migrar a <Button>/<Card>
+     pantalla por pantalla sin romper nada por el camino. */
+
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium
+           transition-all duration-300 ease-agua
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+           focus-visible:ring-offset-background
+           disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-aqua-500 text-white hover:bg-aqua-600 focus:ring-aqua-400;
+    @apply btn bg-primary text-primary-foreground shadow-agua hover:bg-primary-hover hover:shadow-agua-md
+           active:scale-[0.98];
   }
+  /* Antes era amarillo; ahora es el cian brillante con texto marino */
   .btn-sol {
-    @apply btn bg-sol-200 text-sol-800 hover:bg-sol-300 focus:ring-sol-300;
+    @apply btn bg-brillo text-brillo-foreground shadow-agua hover:bg-brillo-hover hover:shadow-brillo
+           active:scale-[0.98];
   }
   .btn-ghost {
-    @apply btn bg-transparent text-aqua-600 hover:bg-aqua-50;
+    @apply btn bg-transparent text-primary hover:bg-accent hover:text-accent-foreground;
   }
   .btn-danger {
-    @apply btn bg-red-500 text-white hover:bg-red-600 focus:ring-red-400;
+    @apply btn bg-destructive text-destructive-foreground shadow-agua hover:bg-destructive/90
+           hover:shadow-agua-md active:scale-[0.98];
   }
   .btn-outline {
-    @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    @apply btn border border-border bg-card text-foreground hover:border-primary/40 hover:bg-accent
+           hover:text-accent-foreground;
   }
 
   .input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-aqua-400 focus:outline-none focus:ring-2 focus:ring-aqua-200;
+    @apply w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground
+           placeholder:text-muted-foreground/70 transition-all duration-300 ease-agua
+           focus:border-brillo focus:outline-none focus:ring-4 focus:ring-brillo/20
+           disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60;
   }
   .label {
-    @apply mb-1 block text-sm font-medium text-slate-700;
+    @apply mb-1.5 block text-sm font-medium text-foreground;
   }
   .card {
-    @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm;
+    @apply rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-agua;
   }
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  /* Contenedor estándar de la landing y del panel */
+  .contenedor {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+  /* Texto en degradado agua, para una palabra del titular */
+  .texto-agua {
+    @apply bg-gradient-to-r from-brillo to-cian-200 bg-clip-text text-transparent;
   }
 }
 
-/* ─── Animaciones de la página pública ─── */
-
-/* Aparición al hacer scroll (fade + deslizamiento) */
+/* ─── Aparición al hacer scroll (fade + deslizamiento) ─── */
 .reveal {
   opacity: 0;
   transform: translateY(36px);
@@ -61,7 +167,7 @@ body {
 .reveal.reveal-zoom { transform: scale(0.94); }
 .reveal.is-visible { opacity: 1; transform: none; }
 
-/* Olas animadas (deslizamiento horizontal en bucle) */
+/* ─── Olas animadas (deslizamiento horizontal en bucle) ─── */
 @keyframes olaDesliz {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -69,14 +175,39 @@ body {
 .ola-1 { animation: olaDesliz 14s linear infinite; }
 .ola-2 { animation: olaDesliz 22s linear infinite; }
 
-/* Flotación suave */
+/* ─── Flotación suave ─── */
 @keyframes flotar {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-8px); }
 }
 .flotar { animation: flotar 4s ease-in-out infinite; }
 
+/* ─── Brillo que recorre un elemento (cursor sobre la tarjeta de plan) ─── */
+@keyframes destello {
+  from { transform: translateX(-120%) skewX(-18deg); }
+  to   { transform: translateX(260%) skewX(-18deg); }
+}
+.destello::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.22), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+  pointer-events: none;
+}
+.destello:hover::after {
+  animation: destello 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .reveal { opacity: 1 !important; transform: none !important; transition: none; }
   .ola-1, .ola-2, .flotar { animation: none; }
+  .destello:hover::after { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
