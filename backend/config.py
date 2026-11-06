@@ -42,6 +42,17 @@ class Config:
     SEED_ADMIN_USERNAME = os.getenv('SEED_ADMIN_USERNAME', 'admin')
     SEED_ADMIN_PASSWORD = os.getenv('SEED_ADMIN_PASSWORD', 'Admin123!')
 
+    # --- Correo (avisos de vencimiento) ---
+    # Con BREVO_API_KEY se envía por HTTPS; si no, por SMTP. Varios hostings
+    # bloquean los puertos SMTP, así que la API es la opción que funciona en todos.
+    CORREO_REMITENTE = os.getenv('CORREO_REMITENTE', '')
+    BREVO_API_KEY = os.getenv('BREVO_API_KEY', '')
+    SMTP_HOST = os.getenv('SMTP_HOST', '')
+    SMTP_PORT = int(os.getenv('SMTP_PORT') or 587)
+    SMTP_USUARIO = os.getenv('SMTP_USUARIO', '')
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
+    AVISOS_HORA = int(os.getenv('AVISOS_HORA') or 9)  # hora local desde la que se envían
+
     # --- CORS ---
     CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(',')
 

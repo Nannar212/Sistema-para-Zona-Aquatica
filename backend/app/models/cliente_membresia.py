@@ -9,10 +9,14 @@ ClienteMembresia — asignación de una membresía a un cliente, con vigencia.
   hoy hasta que termine el día).
 - dias_extension: días extra por ausencias justificadas.
 - monto_total: precio pactado (permite pagos parciales / saldo).
+- aviso_vencimiento_para: fecha de fin ya avisada por correo. Si una extensión
+  corre esa fecha, el cliente vuelve a recibir el aviso cuando le toque.
 """
 
 from datetime import datetime, date, timedelta
 from app.extensions import db
+
+DIAS_ALERTA_VENCIMIENTO = 3
 
 
 def _contar_dias_semana(inicio, fin_inclusive, dias):
@@ -57,6 +61,7 @@ class ClienteMembresia(db.Model):
     dias_extension = db.Column(db.Integer, default=0)
     monto_total = db.Column(db.Numeric(10, 2))
     activa = db.Column(db.Boolean, default=True)
+    aviso_vencimiento_para = db.Column(db.Date)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -117,6 +122,14 @@ class ClienteMembresia(db.Model):
         # Vigente mientras no pase la fecha de la última clase (incluye ese día).
         return self.activa and self.fecha_fin_efectiva >= date.today()
 
+    @property
+    def por_vencer(self):
+        return self.vigente and self.dias_restantes <= DIAS_ALERTA_VENCIMIENTO
+
+    @property
+    def aviso_enviado(self):
+        return self.aviso_vencimiento_para == self.fecha_fin_efectiva
+
     # ─── Dinero ───
     @property
     def total(self):
@@ -149,6 +162,8 @@ class ClienteMembresia(db.Model):
             'dias_extension': self.dias_extension or 0,
             'dias_restantes': self.dias_restantes,
             'vigente': self.vigente,
+            'por_vencer': self.por_vencer,
+            'aviso_enviado': self.aviso_enviado,
             'activa': self.activa,
             'total': self.total,
             'monto_pagado': self.monto_pagado,

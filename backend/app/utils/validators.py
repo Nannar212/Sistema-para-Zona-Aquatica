@@ -25,6 +25,16 @@ def validar_username(username):
     return True, 'OK'
 
 
+def limpiar_correo(correo):
+    """Normaliza un correo. Devuelve '' si viene vacío y None si no es válido."""
+    correo = (correo or '').strip().lower()
+    if not correo:
+        return ''
+    if len(correo) > 160 or not re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+', correo):
+        return None
+    return correo
+
+
 def limpiar_celular(celular):
     """Deja solo dígitos y el signo +."""
     if not celular:

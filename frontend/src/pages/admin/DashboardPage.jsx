@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts'
@@ -37,7 +38,8 @@ export default function DashboardPage() {
       {data.membresias_por_vencer > 0 && (
         <div className="flex items-center gap-2 rounded-xl border border-sol-200 bg-sol-50 px-4 py-3 text-sm text-sol-800">
           <AlertTriangle size={18} />
-          {data.membresias_por_vencer} membresía(s) vencen en los próximos 7 días.
+          {data.membresias_por_vencer} membresía(s) vencen en los próximos 3 días.
+          <Link to="/app/clientes" className="ml-auto font-medium underline">Ver clientes</Link>
         </div>
       )}
 

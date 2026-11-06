@@ -30,7 +30,7 @@ def obtener_usuario_actual():
         if uid is None:
             return None
         return Usuario.query.get(int(uid))
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, RuntimeError):  # RuntimeError: fuera de una petición (notificador)
         return None
 
 

@@ -13,9 +13,10 @@ from app.models.cliente_membresia import ClienteMembresia
 from app.models.membresia import Membresia
 from app.models.horario import Horario
 from app.models.pago import Pago
+from app.services.avisos_vencimiento import membresias_por_vencer
 from app.utils.decorators import rol_requerido
 from app.utils.helpers import registrar_actividad
-from app.utils.validators import limpiar_celular
+from app.utils.validators import limpiar_celular, limpiar_correo
 
 clientes_bp = Blueprint('clientes', __name__)
 
@@ -93,6 +94,13 @@ def contadores():
     return jsonify(conteo), 200
 
 
+@clientes_bp.route('/por-vencer', methods=['GET'])
+@rol_requerido('admin', 'recepcionista')
+def por_vencer():
+    """Clientes activos con la membresía a punto de vencer (el más urgente primero)."""
+    return jsonify([cm.cliente.to_dict() for cm in membresias_por_vencer()]), 200
+
+
 @clientes_bp.route('/<int:id>', methods=['GET'])
 @rol_requerido('admin', 'recepcionista')
 def obtener(id):
@@ -123,12 +131,17 @@ def crear():
         if horario_id and not Horario.query.get(horario_id):
             return jsonify({'error': 'El horario seleccionado no existe'}), 400
 
+        correo = limpiar_correo(data.get('correo_referencia'))
+        if correo is None:
+            return jsonify({'error': 'El correo de referencia no es válido'}), 400
+
         cliente = Cliente(
             nombres=nombres,
             apellidos=apellidos,
             sexo=sexo,
             edad=data.get('edad'),
             celular=limpiar_celular(data.get('celular')),
+            correo_referencia=correo,
             horario_id=horario_id or None,
             activo=True,
             estado='activo',
@@ -169,6 +182,11 @@ def actualizar(id):
             c.edad = data['edad']
         if 'celular' in data:
             c.celular = limpiar_celular(data['celular'])
+        if 'correo_referencia' in data:
+            correo = limpiar_correo(data['correo_referencia'])
+            if correo is None:
+                return jsonify({'error': 'El correo de referencia no es válido'}), 400
+            c.correo_referencia = correo
         if 'horario_id' in data:
             if data['horario_id'] and not Horario.query.get(data['horario_id']):
                 return jsonify({'error': 'El horario seleccionado no existe'}), 400

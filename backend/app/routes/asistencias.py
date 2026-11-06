@@ -71,6 +71,7 @@ def por_dia():
     filas = []
     for c in clientes:
         a = marcas.get(c.id)
+        m = c.membresia_activa
         filas.append({
             'cliente_id': c.id,
             'nombre_completo': c.nombre_completo,
@@ -79,6 +80,8 @@ def por_dia():
             'estado': a.estado if a else None,
             'dias_justificados': a.dias_justificados if a else 0,
             'observacion': a.observacion if a else '',
+            'por_vencer': bool(m and m.por_vencer),
+            'dias_restantes': m.dias_restantes if m else None,
         })
 
     return jsonify({'fecha': fecha.isoformat(), 'clientes': filas}), 200
@@ -154,6 +157,8 @@ def general():
             'horario': c.horario.nombre if c.horario else None,
             'fecha_inicio': m.fecha_inicio.isoformat() if m else None,
             'fecha_fin': m.fecha_fin_efectiva.isoformat() if m else None,
+            'por_vencer': bool(m and m.por_vencer),
+            'dias_restantes': m.dias_restantes if m else None,
             'asistencias': mapa,
             'totales': totales,
         })

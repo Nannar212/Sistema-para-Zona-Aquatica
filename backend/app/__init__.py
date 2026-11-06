@@ -194,6 +194,8 @@ def _agregar_columnas_faltantes(app):
         ('clientes', 'estado', "ALTER TABLE clientes ADD COLUMN estado VARCHAR(20) DEFAULT 'activo'"),
         ('clientes', 'motivo_estado', "ALTER TABLE clientes ADD COLUMN motivo_estado TEXT DEFAULT ''"),
         ('membresias', 'numero_clases', "ALTER TABLE membresias ADD COLUMN numero_clases INTEGER"),
+        ('clientes', 'correo_referencia', "ALTER TABLE clientes ADD COLUMN correo_referencia VARCHAR(160) DEFAULT ''"),
+        ('clientes_membresias', 'aviso_vencimiento_para', "ALTER TABLE clientes_membresias ADD COLUMN aviso_vencimiento_para DATE"),
         ('contenido_publico', 'modelo_3d_url', "ALTER TABLE contenido_publico ADD COLUMN modelo_3d_url TEXT DEFAULT ''"),
     ]
     for tabla, columna, sql in alters:

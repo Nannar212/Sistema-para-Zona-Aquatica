@@ -83,6 +83,7 @@ data class ClienteMembresiaDto(
     @param:Json(name = "dias_extension") val diasExtension: Int = 0,
     @param:Json(name = "dias_restantes") val diasRestantes: Int = 0,
     val vigente: Boolean = false,
+    @param:Json(name = "por_vencer") val porVencer: Boolean = false,
     val activa: Boolean = false,
     val total: Double = 0.0,
     @param:Json(name = "monto_pagado") val montoPagado: Double = 0.0,
@@ -103,6 +104,7 @@ data class ClienteDto(
     val sexo: String = "M",
     val edad: Int? = null,
     val celular: String = "",
+    @param:Json(name = "correo_referencia") val correoReferencia: String = "",
     @param:Json(name = "horario_id") val horarioId: Int? = null,
     val horario: String? = null,
     val activo: Boolean = true,
@@ -126,6 +128,7 @@ data class ClienteRequest(
     val sexo: String,
     val edad: Int?,
     val celular: String,
+    @param:Json(name = "correo_referencia") val correoReferencia: String,
     @param:Json(name = "horario_id") val horarioId: Int?,
     @param:Json(name = "membresia_id") val membresiaId: Int?,
     @param:Json(name = "fecha_inicio") val fechaInicio: String?,
@@ -234,6 +237,8 @@ data class FilaAsistenciaDto(
     val estado: String? = null,
     @param:Json(name = "dias_justificados") val diasJustificados: Int = 0,
     val observacion: String = "",
+    @param:Json(name = "por_vencer") val porVencer: Boolean = false,
+    @param:Json(name = "dias_restantes") val diasRestantes: Int? = null,
 )
 
 data class AsistenciaDiaDto(

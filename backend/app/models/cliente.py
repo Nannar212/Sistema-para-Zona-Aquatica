@@ -21,6 +21,7 @@ class Cliente(db.Model):
     sexo = db.Column(db.String(10), default='M')  # M | F | Otro
     edad = db.Column(db.Integer)
     celular = db.Column(db.String(30), default='')
+    correo_referencia = db.Column(db.String(160), default='')  # recibe el aviso de vencimiento
     horario_id = db.Column(db.Integer, db.ForeignKey('horarios.id'))
     activo = db.Column(db.Boolean, default=True)  # se mantiene sincronizado: True si estado=='activo'
     estado = db.Column(db.String(20), default='activo')      # activo | inactivo | eliminado
@@ -85,6 +86,7 @@ class Cliente(db.Model):
             'sexo': self.sexo,
             'edad': self.edad,
             'celular': self.celular or '',
+            'correo_referencia': self.correo_referencia or '',
             'horario_id': self.horario_id,
             'horario': self.horario.nombre if self.horario else None,
             'activo': self.activo,

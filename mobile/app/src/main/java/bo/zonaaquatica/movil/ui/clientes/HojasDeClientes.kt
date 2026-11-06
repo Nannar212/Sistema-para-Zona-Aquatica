@@ -189,6 +189,14 @@ fun HojasDeClientes(
                     tipoTeclado = KeyboardType.Phone,
                 )
                 Spacer(Modifier.height(10.dp))
+                CampoTexto(
+                    form.correoReferencia,
+                    { v -> vm.editarForm { it.copy(correoReferencia = v) } },
+                    "Correo de referencia",
+                    tipoTeclado = KeyboardType.Email,
+                    soporte = "Aquí llega el aviso 3 días antes de que venza la membresía",
+                )
+                Spacer(Modifier.height(10.dp))
                 CampoSelector(
                     etiqueta = "Horario",
                     opciones = ui.horarios,
@@ -602,6 +610,7 @@ private fun DetalleCliente(
             FilaDato("Sexo", FormCliente.etiquetaSexo(c.sexo))
             FilaDato("Edad", c.edad?.toString() ?: "—")
             FilaDato("Celular", c.celular.ifBlank { "—" })
+            FilaDato("Correo", c.correoReferencia.ifBlank { "—" })
             FilaDato("Horario", c.horario ?: "Sin asignar")
             FilaDato("Registrado", Formato.fecha(c.createdAt))
         }
