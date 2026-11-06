@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Inbox
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -65,6 +66,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
+import bo.zonaaquatica.movil.ui.theme.Sol700
 
 // ─── Tarjetas y bloques de estado ───────────────────────────────────────────
 
@@ -225,6 +227,28 @@ fun Etiqueta(texto: String, color: ColorEtiqueta = ColorEtiqueta.Gris) {
             .padding(horizontal = 9.dp, vertical = 3.dp),
     ) {
         Text(texto, style = MaterialTheme.typography.labelSmall, color = tinta)
+    }
+}
+
+/** Equivalente a AlertaVencimiento.jsx: aviso de membresía por vencer. */
+@Composable
+fun AlertaVencimiento(dias: Int) {
+    val texto = when {
+        dias <= 0 -> "Vence hoy"
+        dias == 1 -> "Vence mañana"
+        else -> "Vence en $dias días"
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Icon(Icons.Outlined.WarningAmber, null, tint = Sol700, modifier = Modifier.size(16.dp))
+        Text(
+            texto,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            color = Sol700,
+        )
     }
 }
 

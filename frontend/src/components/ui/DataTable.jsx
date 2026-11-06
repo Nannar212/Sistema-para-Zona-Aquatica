@@ -1,37 +1,61 @@
 import EmptyState from './EmptyState'
+import { cn } from '../../lib/cn'
 
 /**
- * columnas: [{ key, titulo, render?(fila) }]
- * datos: array de objetos
+ * Tabla de datos.
+ *   columnas: [{ key, titulo, render?(fila), alinear?: 'izq'|'centro'|'der', className? }]
+ *   datos: array de objetos
+ *   onFilaClick?: (fila) => void
  */
-export default function DataTable({ columnas, datos, vacio }) {
+const ALINEAR = { izq: 'text-left', centro: 'text-center', der: 'text-right' }
+
+export default function DataTable({ columnas, datos, vacio, onFilaClick, className }) {
   if (!datos || datos.length === 0) {
     return vacio || <EmptyState titulo="Sin registros" />
   }
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-      <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50">
-          <tr>
-            {columnas.map((c) => (
-              <th key={c.key} className="px-4 py-3 text-left font-medium text-slate-500">
-                {c.titulo}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {datos.map((fila, i) => (
-            <tr key={fila.id ?? i} className="hover:bg-aqua-50/40">
+    <div className={cn('overflow-hidden rounded-2xl border border-border bg-card shadow-agua', className)}>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/60">
               {columnas.map((c) => (
-                <td key={c.key} className="px-4 py-3 text-slate-700">
-                  {c.render ? c.render(fila) : fila[c.key]}
-                </td>
+                <th
+                  key={c.key}
+                  scope="col"
+                  className={cn(
+                    'whitespace-nowrap px-5 py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground',
+                    ALINEAR[c.alinear] || ALINEAR.izq,
+                  )}
+                >
+                  {c.titulo}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {datos.map((fila, i) => (
+              <tr
+                key={fila.id ?? i}
+                onClick={onFilaClick ? () => onFilaClick(fila) : undefined}
+                className={cn(
+                  'transition-colors duration-300 ease-agua hover:bg-accent/50',
+                  onFilaClick && 'cursor-pointer',
+                )}
+              >
+                {columnas.map((c) => (
+                  <td
+                    key={c.key}
+                    className={cn('px-5 py-3.5 text-foreground', ALINEAR[c.alinear] || ALINEAR.izq, c.className)}
+                  >
+                    {c.render ? c.render(fila) : fila[c.key]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

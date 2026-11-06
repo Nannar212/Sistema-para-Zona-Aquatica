@@ -3,7 +3,7 @@ import { ClipboardCheck, Check, X, CalendarClock, CalendarDays, Table2 } from 'l
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
-import { Modal, Badge, EmptyState, LoadingSpinner } from '../components/ui'
+import { Modal, Badge, EmptyState, LoadingSpinner, AlertaVencimiento } from '../components/ui'
 import CalendarioAsistencia from '../components/CalendarioAsistencia'
 
 const dosDig = (n) => String(n).padStart(2, '0')
@@ -139,9 +139,12 @@ function PasarLista({ isAdmin, onVerCalendario }) {
               {filas.map((f) => (
                 <tr key={f.cliente_id} className="hover:bg-aqua-50/40">
                   <td className="px-4 py-3">
-                    <button className="flex items-center gap-2 font-medium text-slate-800 hover:text-aqua-600" onClick={() => onVerCalendario(f.cliente_id, f.nombre_completo)} title="Ver asistencias">
-                      <CalendarDays size={16} className="text-aqua-500" /> {f.nombre_completo}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button className="flex items-center gap-2 font-medium text-slate-800 hover:text-aqua-600" onClick={() => onVerCalendario(f.cliente_id, f.nombre_completo)} title="Ver asistencias">
+                        <CalendarDays size={16} className="text-aqua-500" /> {f.nombre_completo}
+                      </button>
+                      {f.por_vencer && <AlertaVencimiento dias={f.dias_restantes} compacta />}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-slate-500">{f.horario || '—'}</td>
                   <td className="px-4 py-3">
@@ -237,9 +240,12 @@ function AsistenciaGeneral({ onVerCalendario }) {
               {clientes.map((c) => (
                 <tr key={c.cliente_id} className="hover:bg-aqua-50/30">
                   <td className="sticky left-0 z-10 border-r border-slate-200 bg-white px-3 py-2">
-                    <button className="flex items-center gap-2 font-medium text-slate-800 hover:text-aqua-600" onClick={() => onVerCalendario(c.cliente_id, c.nombre)} title="Ver calendario">
-                      <CalendarDays size={15} className="shrink-0 text-aqua-500" /> <span className="whitespace-nowrap">{c.nombre}</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button className="flex items-center gap-2 font-medium text-slate-800 hover:text-aqua-600" onClick={() => onVerCalendario(c.cliente_id, c.nombre)} title="Ver calendario">
+                        <CalendarDays size={15} className="shrink-0 text-aqua-500" /> <span className="whitespace-nowrap">{c.nombre}</span>
+                      </button>
+                      {c.por_vencer && <AlertaVencimiento dias={c.dias_restantes} compacta />}
+                    </div>
                     <span className="ml-6 text-xs text-green-600">{c.totales.presente}✓</span>
                     <span className="ml-1 text-xs text-red-500">{c.totales.falta}✗</span>
                     <span className="ml-1 text-xs text-yellow-600">{c.totales.justificada}!</span>

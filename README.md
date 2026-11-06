@@ -94,7 +94,9 @@ piscina/
 │   ├── app/
 │   │   ├── models/     # usuario, cliente, membresia, horario, pago, asistencia, auditoria
 │   │   ├── routes/     # auth, personal, clientes, membresias, horarios, asistencias, pagos, dashboard, auditoria
+│   │   ├── services/   # correo y avisos de vencimiento
 │   │   └── utils/      # decoradores, validadores, helpers
+│   ├── notificador.py  # proceso que envía los avisos por correo
 │   └── seed.py
 └── frontend/           # React + Vite + Tailwind
     └── src/

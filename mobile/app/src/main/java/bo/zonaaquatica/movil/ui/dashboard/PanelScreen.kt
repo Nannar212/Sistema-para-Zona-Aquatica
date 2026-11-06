@@ -81,7 +81,7 @@ fun PanelScreen() {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         TarjetaIndicador(
-                            titulo = "Por vencer (7 días)",
+                            titulo = "Por vencer (3 días)",
                             valor = r.membresiasPorVencer.toString(),
                             icono = Icons.Outlined.WarningAmber,
                             colorIcono = Sol500,

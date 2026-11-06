@@ -11,7 +11,10 @@ dist/
 
 # Entornos (secretos: no subir a internet)
 /.env
+backend/.env
 .env.local
+*.jks
+*.keystore
 *.log
 
 # Sistema

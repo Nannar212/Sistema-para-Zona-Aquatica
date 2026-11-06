@@ -47,6 +47,7 @@ import bo.zonaaquatica.movil.core.Formato
 import bo.zonaaquatica.movil.data.model.FilaAsistenciaDto
 import bo.zonaaquatica.movil.data.model.HorarioDto
 import bo.zonaaquatica.movil.ui.LocalContenedor
+import bo.zonaaquatica.movil.ui.common.AlertaVencimiento
 import bo.zonaaquatica.movil.ui.common.CajaCargando
 import bo.zonaaquatica.movil.ui.common.CajaError
 import bo.zonaaquatica.movil.ui.common.CajaVacia
@@ -187,6 +188,10 @@ private fun FilaAsistencia(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                if (fila.porVencer) {
+                    Spacer(Modifier.height(3.dp))
+                    AlertaVencimiento(fila.diasRestantes ?: 0)
+                }
                 if (fila.estado == EstadoAsistencia.JUSTIFICADA && fila.diasJustificados > 0) {
                     Spacer(Modifier.height(3.dp))
                     Text(

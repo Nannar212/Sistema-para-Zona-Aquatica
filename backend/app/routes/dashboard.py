@@ -11,6 +11,7 @@ from app.models.pago import Pago
 from app.models.horario import Horario
 from app.models.membresia import Membresia
 from app.models.cliente_membresia import ClienteMembresia
+from app.services.avisos_vencimiento import membresias_por_vencer
 from app.utils.decorators import rol_requerido
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -24,13 +25,8 @@ def resumen():
     clientes_activos = Cliente.query.filter_by(activo=True).count()
 
     # Membresías vigentes (activas y no vencidas, considerando extensiones).
-    vigentes = 0
-    por_vencer = 0
-    for cm in ClienteMembresia.query.filter_by(activa=True).all():
-        if cm.vigente:
-            vigentes += 1
-            if 0 <= cm.dias_restantes <= 7:
-                por_vencer += 1
+    vigentes = sum(1 for cm in ClienteMembresia.query.filter_by(activa=True).all() if cm.vigente)
+    por_vencer = len(membresias_por_vencer())
 
     pagos_hoy = Pago.query.filter(db.func.date(Pago.fecha) == hoy).all()
     ingresos_hoy = round(sum(float(p.monto) for p in pagos_hoy), 2)

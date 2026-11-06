@@ -1,3 +1,20 @@
+x-backend-env: &backend-env
+  FLASK_ENV: ${FLASK_ENV:-development}
+  TZ: America/La_Paz
+  DATABASE_URL: postgresql://${POSTGRES_USER:-piscina_admin}:${POSTGRES_PASSWORD:-piscina_pass_cambiar}@db:5432/${POSTGRES_DB:-piscina_db}
+  SECRET_KEY: ${SECRET_KEY:-cambiar_secret_key_en_produccion}
+  JWT_SECRET_KEY: ${JWT_SECRET_KEY:-cambiar_jwt_secret_en_produccion}
+  SEED_ADMIN_USERNAME: ${SEED_ADMIN_USERNAME:-admin}
+  SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-Admin123!}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+  CORREO_REMITENTE: ${CORREO_REMITENTE:-}
+  BREVO_API_KEY: ${BREVO_API_KEY:-}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USUARIO: ${SMTP_USUARIO:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  AVISOS_HORA: ${AVISOS_HORA:-9}
+
 services:
   # ─── BASE DE DATOS ───────────────────────────
   db:
@@ -26,19 +43,27 @@ services:
       dockerfile: Dockerfile
     container_name: piscina_backend
     restart: unless-stopped
-    environment:
-      FLASK_ENV: ${FLASK_ENV:-development}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-piscina_admin}:${POSTGRES_PASSWORD:-piscina_pass_cambiar}@db:5432/${POSTGRES_DB:-piscina_db}
-      SECRET_KEY: ${SECRET_KEY:-cambiar_secret_key_en_produccion}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-cambiar_jwt_secret_en_produccion}
-      SEED_ADMIN_USERNAME: ${SEED_ADMIN_USERNAME:-admin}
-      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-Admin123!}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    environment: *backend-env
     ports:
       - "5000:5000"
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+
+  # ─── AVISOS DE VENCIMIENTO POR CORREO ───────
+  notificador:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: piscina_notificador
+    restart: unless-stopped
+    environment: *backend-env
+    command: python notificador.py
+    depends_on:
+      - backend
     volumes:
       - ./backend:/app
       - /app/__pycache__

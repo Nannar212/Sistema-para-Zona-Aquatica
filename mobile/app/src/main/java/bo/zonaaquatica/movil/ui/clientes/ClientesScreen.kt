@@ -38,6 +38,7 @@ import bo.zonaaquatica.movil.core.Formato
 import bo.zonaaquatica.movil.data.model.ClienteDto
 import bo.zonaaquatica.movil.data.model.ClienteMembresiaDto
 import bo.zonaaquatica.movil.ui.LocalContenedor
+import bo.zonaaquatica.movil.ui.common.AlertaVencimiento
 import bo.zonaaquatica.movil.ui.common.BarraBusqueda
 import bo.zonaaquatica.movil.ui.common.CajaCargando
 import bo.zonaaquatica.movil.ui.common.CajaError
@@ -160,6 +161,11 @@ private fun TarjetaCliente(c: ClienteDto, alAbrir: () -> Unit) {
             if (saldo > 0.009) {
                 Etiqueta("Debe ${Formato.bs(saldo)}", ColorEtiqueta.Amarillo)
             }
+        }
+
+        c.membresiaActiva?.takeIf { it.porVencer && c.bucket == Bucket.ACTIVO }?.let { m ->
+            Spacer(Modifier.height(6.dp))
+            AlertaVencimiento(m.diasRestantes)
         }
 
         if (c.motivo.isNotBlank()) {

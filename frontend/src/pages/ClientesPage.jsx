@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   Users, Plus, Pencil, Trash2, CreditCard, Phone, Clock, IdCard, FileText,
-  AlertCircle, Ban, RotateCcw, RefreshCw, Waves, CalendarDays,
+  AlertCircle, AlertTriangle, Ban, RotateCcw, RefreshCw, Waves, CalendarDays, Mail,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
-import { Modal, ConfirmDialog, Badge, SearchBar, EmptyState, LoadingSpinner } from '../components/ui'
+import { Modal, ConfirmDialog, Badge, SearchBar, EmptyState, LoadingSpinner, AlertaVencimiento, textoVencimiento } from '../components/ui'
 
 const hoyISO = () => new Date().toISOString().slice(0, 10)
 
@@ -36,7 +36,7 @@ function calcularFechaFinISO(m, inicioISO) {
   const d = new Date(inicio.getTime() + (Number(m.duracion_dias) || 30) * 86400000)
   return toISO(d)
 }
-const VACIO = { nombres: '', apellidos: '', sexo: 'M', edad: '', horario_id: '', celular: '', membresia_id: '', fecha_inicio: hoyISO() }
+const VACIO = { nombres: '', apellidos: '', sexo: 'M', edad: '', horario_id: '', celular: '', correo_referencia: '', membresia_id: '', fecha_inicio: hoyISO() }
 const SEXO_LABEL = { M: 'Masculino', F: 'Femenino', Otro: 'Otro' }
 const TABS = [
   { id: 'activo', label: 'Activos' },
@@ -53,6 +53,28 @@ function InfoMembresia({ m }) {
   return <Badge color="rojo">Vencida</Badge>
 }
 
+function estadoAviso(c) {
+  if (c.membresia_activa.aviso_enviado) return 'correo enviado'
+  return c.correo_referencia ? 'correo pendiente' : 'sin correo de referencia'
+}
+
+function AlertasVencimiento({ clientes, onVer }) {
+  if (clientes.length === 0) return null
+  return (
+    <div className="rounded-xl border border-amber-600/20 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+      <p className="flex items-center gap-2 font-medium"><AlertTriangle size={16} /> {clientes.length} membresía(s) vencen en los próximos 3 días</p>
+      <ul className="mt-2 space-y-1">
+        {clientes.map((c) => (
+          <li key={c.id} className="flex flex-wrap items-center gap-x-2">
+            <button className="font-medium underline" onClick={() => onVer(c.id)}>{c.nombre_completo}</button>
+            <span>{textoVencimiento(c.membresia_activa.dias_restantes)} · {estadoAviso(c)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export default function ClientesPage() {
   const { isAdmin } = useAuth()
   const [tab, setTab] = useState('activo')
@@ -60,6 +82,7 @@ export default function ClientesPage() {
   const [membresias, setMembresias] = useState([])
   const [horarios, setHorarios] = useState([])
   const [conteo, setConteo] = useState({ activo: 0, inactivo: 0, eliminado: 0 })
+  const [porVencer, setPorVencer] = useState([])
   const [cargando, setCargando] = useState(true)
   const [busqueda, setBusqueda] = useState('')
 
@@ -77,20 +100,21 @@ export default function ClientesPage() {
   const cargar = useCallback(async () => {
     setCargando(true)
     try {
-      const [c, m, h, ct] = await Promise.all([
+      const [c, m, h, ct, pv] = await Promise.all([
         api.get('/clientes', { params: { q: busqueda, estado: tab } }),
         api.get('/membresias', { params: { activas: true } }),
         api.get('/horarios', { params: { activos: true } }),
         api.get('/clientes/contadores'),
+        api.get('/clientes/por-vencer'),
       ])
-      setClientes(c.data); setMembresias(m.data); setHorarios(h.data); setConteo(ct.data)
+      setClientes(c.data); setMembresias(m.data); setHorarios(h.data); setConteo(ct.data); setPorVencer(pv.data)
     } catch { toast.error('No se pudieron cargar los datos') } finally { setCargando(false) }
   }, [busqueda, tab])
   useEffect(() => { cargar() }, [cargar])
 
   const abrirNuevo = () => { setForm(VACIO); setEditId(null); setFormModal(true) }
   const abrirEditar = (c) => {
-    setForm({ nombres: c.nombres, apellidos: c.apellidos, sexo: c.sexo, edad: c.edad ?? '', horario_id: c.horario_id ?? '', celular: c.celular ?? '', membresia_id: '', fecha_inicio: hoyISO() })
+    setForm({ nombres: c.nombres, apellidos: c.apellidos, sexo: c.sexo, edad: c.edad ?? '', horario_id: c.horario_id ?? '', celular: c.celular ?? '', correo_referencia: c.correo_referencia ?? '', membresia_id: '', fecha_inicio: hoyISO() })
     setEditId(c.id); setFormModal(true)
   }
 
@@ -184,6 +208,8 @@ export default function ClientesPage() {
         ))}
       </div>
 
+      {tab === 'activo' && <AlertasVencimiento clientes={porVencer} onVer={verDetalle} />}
+
       <SearchBar value={busqueda} onChange={setBusqueda} placeholder="Buscar por nombre o celular" />
 
       {cargando ? <LoadingSpinner /> : clientes.length === 0 ? (
@@ -199,7 +225,10 @@ export default function ClientesPage() {
                     <h3 className="font-semibold text-slate-800 hover:text-aqua-600">{c.nombre_completo}</h3>
                     <p className="text-xs text-slate-400">{SEXO_LABEL[c.sexo]} · {c.edad || '—'} años</p>
                   </button>
-                  <InfoMembresia m={c.membresia_activa} />
+                  <div className="flex flex-col items-end gap-1">
+                    <InfoMembresia m={c.membresia_activa} />
+                    {tab === 'activo' && c.membresia_activa?.por_vencer && <AlertaVencimiento dias={c.membresia_activa.dias_restantes} />}
+                  </div>
                 </div>
                 <div className="space-y-1 text-sm text-slate-500">
                   <p className="flex items-center gap-2"><Clock size={14} /> {c.horario || 'Sin horario'}</p>
@@ -265,6 +294,11 @@ export default function ClientesPage() {
               </select>
             </div>
             <div><label className="label">Celular</label><input className="input" value={form.celular} onChange={(e) => setForm({ ...form, celular: e.target.value })} placeholder="Ej: 700 00000" /></div>
+            <div className="col-span-2">
+              <label className="label">Correo de referencia</label>
+              <input type="email" className="input" value={form.correo_referencia} onChange={(e) => setForm({ ...form, correo_referencia: e.target.value })} placeholder="Ej: familia@correo.com" />
+              <p className="mt-1 text-xs text-slate-400">Aquí llega el aviso 3 días antes de que venza la membresía.</p>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div><label className="label">Membresía {editId && <span className="text-xs text-slate-400">(opcional)</span>}</label>
@@ -301,7 +335,11 @@ export default function ClientesPage() {
                 <p className="flex items-center gap-2"><IdCard size={15} /> {SEXO_LABEL[detalle.sexo]} · {detalle.edad || '—'} años</p>
                 <p className="flex items-center gap-2"><Phone size={15} /> {detalle.celular || '—'}</p>
                 <p className="flex items-center gap-2"><Clock size={15} /> {detalle.horario || 'Sin horario'}</p>
-                <p><InfoMembresia m={detalle.membresia_activa} /></p>
+                <p className="flex flex-wrap items-center gap-1">
+                  <InfoMembresia m={detalle.membresia_activa} />
+                  {detalle.membresia_activa?.por_vencer && <AlertaVencimiento dias={detalle.membresia_activa.dias_restantes} />}
+                </p>
+                <p className="col-span-2 flex items-center gap-2 break-all"><Mail size={15} className="shrink-0" /> {detalle.correo_referencia || 'Sin correo de referencia'}</p>
               </div>
               {detalle.membresia_activa && (
                 <div className="mt-2 flex flex-wrap gap-3 text-sm">
